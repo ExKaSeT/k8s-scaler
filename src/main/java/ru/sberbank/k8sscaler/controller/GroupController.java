@@ -36,6 +36,7 @@ public class GroupController {
     @ResponseBody
     public SuccessContainerDto scaleGroup(@PathVariable String groupName, @RequestBody List<Cluster> clusters) {
 
+
         return SuccessContainerDto.success();
     }
 }

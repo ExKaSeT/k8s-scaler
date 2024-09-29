@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SuccessContainerDto {
     public static SuccessContainerDto success() {
-        return new SuccessContainerDto(true, "успешное выполнение запроса");
+        return new SuccessContainerDto(true, "Успешное выполнение запроса");
     }
 
     private boolean success;

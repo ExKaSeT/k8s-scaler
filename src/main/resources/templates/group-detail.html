@@ -5,6 +5,35 @@
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <script src="/js/jquery-3.5.1.min.js"></script>
+    <style>
+        /* Стиль для блокировки экрана во время загрузки */
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.1);
+            z-index: 9999;
+        }
+
+        /* Центрирование спиннера */
+        #loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+        }
+
+        /* Стиль для уведомлений */
+        #response-message {
+            position: fixed;
+            top: 10%;
+            right: 10%;
+            z-index: 9999;
+            display: none;
+        }
+    </style>
 </head>
 <body>
 <div class="header" th:replace="~{fragments/header :: header}"></div>
@@ -12,21 +41,22 @@
 <div class="container">
     <h1 th:text="${group.name}" class="text-center mb-4">Группа</h1>
 
-    <!-- Кнопки для выполнения масштабирования и зануления -->
+    <!-- Кнопки для масштабирования и зануления -->
     <div class="text-center mt-5">
         <button id="scale-button" class="btn btn-primary">Масштабировать</button>
         <button id="zero-button" class="btn btn-danger">Занулить</button>
     </div>
 
+    <!-- Список кластеров, namespaces и деплойментов -->
     <div th:each="cluster : ${group.clusters}">
         <h3>
-            <input type="checkbox" class="cluster-checkbox" th:data-cluster="${cluster.url}" checked> <!-- Кнопка для выбора всего кластера -->
+            <input type="checkbox" class="cluster-checkbox" th:data-cluster="${cluster.url}" checked>
             <span th:text="${cluster.url}"></span>
         </h3>
         <ul class="list-group mb-4">
             <li class="list-group-item" th:each="namespace : ${cluster.namespaces}">
                 <h5>
-                    <input type="checkbox" class="namespace-checkbox" th:data-cluster="${cluster.url}" th:data-namespace="${namespace.name}" checked> <!-- Кнопка для выбора всего namespace -->
+                    <input type="checkbox" class="namespace-checkbox" th:data-cluster="${cluster.url}" th:data-namespace="${namespace.name}" checked>
                     <span th:text="${namespace.name}"></span>
                 </h5>
                 <ul>
@@ -42,33 +72,59 @@
     </div>
 </div>
 
+<!-- Индикатор загрузки (спиннер) -->
+<div id="loading-overlay">
+    <div id="loading-spinner" class="spinner-border" role="status"></div>
+</div>
+
+<!-- Уведомление для отображения ответа -->
+<div id="response-message" class="alert" role="alert"></div>
+
 <script>
-    // Выбрать или снять выбор всех деплойментов в кластере
+    // Выбор/снятие всех деплойментов в кластере
     $('.cluster-checkbox').change(function() {
         let cluster = $(this).data('cluster');
         $('input[type=checkbox][data-cluster="' + cluster + '"]').prop('checked', this.checked);
     });
 
-    // Выбрать или снять выбор всех деплойментов в namespace
+    // Выбор/снятие всех деплойментов в namespace
     $('.namespace-checkbox').change(function() {
         let cluster = $(this).data('cluster');
         let namespace = $(this).data('namespace');
         $('input[type=checkbox][data-cluster="' + cluster + '"][data-namespace="' + namespace + '"]').prop('checked', this.checked);
     });
 
+    // Показать индикатор загрузки
+    function showLoading() {
+        $('#loading-overlay').show();
+    }
+
+    // Скрыть индикатор загрузки
+    function hideLoading() {
+        $('#loading-overlay').hide();
+    }
+
+    // Показать сообщение об успехе или ошибке
+    function showMessage(type, message) {
+        let alertClass = (type === 'success') ? 'alert-success' : 'alert-danger';
+        $('#response-message').removeClass('alert-success alert-danger').addClass(alertClass).text(message).fadeIn();
+
+        // Скрыть сообщение через 3 секунды
+        setTimeout(function() {
+            $('#response-message').fadeOut();
+        }, 3000);
+    }
 
     // Собрать данные о выбранных деплойментах
     function collectSelectedDeployments(zeroReplicas = false) {
         let clusters = {};
 
-        // Проходим по каждому отмеченному деплойменту
-        $('.deployment-checkbox:checked').each(function () {
+        $('.deployment-checkbox:checked').each(function() {
             let clusterUrl = $(this).data('cluster');
             let namespaceName = $(this).data('namespace');
             let deploymentName = $(this).data('deployment');
             let replicas = zeroReplicas ? 0 : $(this).data('replicas');
 
-            // Проверяем, есть ли уже такой кластер в объекте
             if (!clusters[clusterUrl]) {
                 clusters[clusterUrl] = {
                     url: clusterUrl,
@@ -76,7 +132,6 @@
                 };
             }
 
-            // Проверяем, есть ли уже такое пространство имен в кластере
             if (!clusters[clusterUrl].namespaces[namespaceName]) {
                 clusters[clusterUrl].namespaces[namespaceName] = {
                     name: namespaceName,
@@ -84,14 +139,12 @@
                 };
             }
 
-            // Добавляем деплоймент в соответствующее пространство имен
             clusters[clusterUrl].namespaces[namespaceName].deployments.push({
                 name: deploymentName,
                 replicas: replicas
             });
         });
 
-        // Преобразуем namespaces и clusters в массивы, как это нужно по структуре классов
         let result = Object.values(clusters).map(cluster => {
             cluster.namespaces = Object.values(cluster.namespaces);
             return cluster;
@@ -101,20 +154,23 @@
     }
 
     // Отправка запроса для масштабирования
-    $('#scale-button').click(function () {
-        let selectedDeployments = collectSelectedDeployments(false); // Собираем данные с текущими репликами
+    $('#scale-button').click(function() {
+        let selectedDeployments = collectSelectedDeployments(false);
         sendScaleRequest(selectedDeployments);
     });
 
     // Отправка запроса для зануления
-    $('#zero-button').click(function () {
-        let selectedDeployments = collectSelectedDeployments(true); // Собираем данные с replicas = 0
+    $('#zero-button').click(function() {
+        let selectedDeployments = collectSelectedDeployments(true);
         sendScaleRequest(selectedDeployments);
     });
 
-    // Функция отправки POST-запроса с данными о деплойментах
+    // Отправка POST-запроса с деплойментами
     function sendScaleRequest(deployments) {
         const currentPath = window.location.pathname;
+
+        // Показать спиннер
+        showLoading();
 
         $.ajax({
             url: currentPath + '/scale',
@@ -122,15 +178,19 @@
             contentType: 'application/json',
             data: JSON.stringify(deployments),
             success: function(response) {
-                // Обработка ответа сервера (SuccessContainerDto)
+                // Обработка ответа сервера
                 if (response.success) {
-                    alert('Успешно: ' + response.message);
+                    showMessage('success', response.message);
                 } else {
-                    alert('Ошибка: ' + response.message);
+                    showMessage('error', response.message);
                 }
             },
             error: function(xhr, status, error) {
-                alert('Ошибка запроса: ' + error);
+                showMessage('error', 'Ошибка запроса: ' + error);
+            },
+            complete: function() {
+                // Скрыть спиннер после завершения запроса
+                hideLoading();
             }
         });
     }
