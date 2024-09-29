@@ -45,6 +45,7 @@
     <div class="text-center mt-5">
         <button id="scale-button" class="btn btn-primary">Масштабировать</button>
         <button id="zero-button" class="btn btn-danger">Занулить</button>
+        <button id="deselect-all" class="btn btn-secondary">Снять выбор</button>
     </div>
 
     <!-- Список кластеров, namespaces и деплойментов -->
@@ -81,6 +82,13 @@
 <div id="response-message" class="alert" role="alert"></div>
 
 <script>
+    // Снять выбор со всех деплойментов
+    $('#deselect-all').click(function() {
+        $('.cluster-checkbox').prop('checked', false);
+        $('.namespace-checkbox').prop('checked', false);
+        $('.deployment-checkbox').prop('checked', false);
+    });
+
     // Выбор/снятие всех деплойментов в кластере
     $('.cluster-checkbox').change(function() {
         let cluster = $(this).data('cluster');
