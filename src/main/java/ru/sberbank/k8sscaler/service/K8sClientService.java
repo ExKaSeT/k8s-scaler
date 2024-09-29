@@ -4,7 +4,6 @@ import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.util.Config;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.sberbank.k8sscaler.property.ScaleProperties;
@@ -18,7 +17,7 @@ import static java.util.Objects.isNull;
 @Slf4j
 public class K8sClientService {
 
-    private Map<ClusterNamespace, ApiClient> clusterNamespaceApiClient = new HashMap<>();
+    private final Map<ClusterNamespace, ApiClient> clusterNamespaceApiClient = new HashMap<>();
 
     public K8sClientService(ScaleProperties scaleProperties) {
         for (var clusterProperties : scaleProperties.getTokens()) {
@@ -34,9 +33,11 @@ public class K8sClientService {
     public ApiClient getApiClient(String url, String namespace) {
         var apiClient = clusterNamespaceApiClient.get(new ClusterNamespace(url, namespace));
         if (isNull(apiClient)) {
-            apiClient = Config.fromUrl(url, false);
-            clusterNamespaceApiClient.put(new ClusterNamespace(url, namespace), apiClient);
-            log.info(String.format("Не найдено токена для url: %s, namespace: %s; Создан клиент без токена", url, namespace));
+            synchronized (clusterNamespaceApiClient) {
+                apiClient = Config.fromUrl(url, false);
+                clusterNamespaceApiClient.put(new ClusterNamespace(url, namespace), apiClient);
+                log.info(String.format("Не найдено токена для url: %s, namespace: %s; Создан клиент без токена", url, namespace));
+            }
         }
         return apiClient;
     }

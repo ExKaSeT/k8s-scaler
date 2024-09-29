@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Информация о группе</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="header" th:replace="~{fragments/header :: header}"></div>
+
+<div class="container">
+    <h1 th:text="'Группа: ' + ${group.name}" class="text-center mb-4">Группа</h1>
+
+    <div th:each="cluster : ${group.clusters}">
+        <h3 th:text="'Кластер: ' + ${cluster.url}" class="mt-4">Кластер</h3>
+        <ul class="list-group mb-4">
+            <li class="list-group-item" th:each="namespace : ${cluster.namespaces}">
+                <h5 th:text="'Пространство имен: ' + ${namespace.name}"></h5>
+                <ul>
+                    <li th:each="deployment : ${namespace.deployments}">
+                        <span th:text="'Деплоймент: ' + ${deployment.name} + ', Реплик: ' + ${deployment.replicas}"></span>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

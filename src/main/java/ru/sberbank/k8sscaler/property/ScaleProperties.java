@@ -3,8 +3,10 @@ package ru.sberbank.k8sscaler.property;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import org.hibernate.validator.constraints.UniqueElements;
+
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +42,7 @@ public class ScaleProperties {
     @Data
     public static class Group {
         @NotBlank
+        @Pattern(regexp = "^[a-zA-Z0-9_-]+$")
         private String name;
         @NotEmpty
         @UniqueElements

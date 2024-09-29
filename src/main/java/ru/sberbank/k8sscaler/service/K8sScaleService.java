@@ -14,7 +14,7 @@ import java.util.concurrent.*;
 
 @Service
 @Slf4j
-public class K8sService {
+public class K8sScaleService {
 
     private static final int SCALE_DEPLOYMENTS_TIMEOUT_SEC = 3;
 
