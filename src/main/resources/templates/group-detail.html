@@ -117,10 +117,10 @@
         let alertClass = (type === 'success') ? 'alert-success' : 'alert-danger';
         $('#response-message').removeClass('alert-success alert-danger').addClass(alertClass).text(message).fadeIn();
 
-        // Скрыть сообщение через 3 секунды
+        // Скрыть сообщение через 3 / 6 секунд
         setTimeout(function() {
             $('#response-message').fadeOut();
-        }, 3000);
+        }, (type === 'success') ? 3000 : 6000);
     }
 
     // Собрать данные о выбранных деплойментах
@@ -194,7 +194,7 @@
                 }
             },
             error: function(xhr, status, error) {
-                showMessage('error', 'Ошибка запроса: ' + error);
+                showMessage('error', 'Ошибка ' + xhr.status + ': ' + xhr.responseJSON.message);
             },
             complete: function() {
                 // Скрыть спиннер после завершения запроса

@@ -8,6 +8,7 @@ import ru.sberbank.k8sscaler.dto.SuccessContainerDto;
 import ru.sberbank.k8sscaler.dto.scale.Cluster;
 import ru.sberbank.k8sscaler.dto.scale.Group;
 import ru.sberbank.k8sscaler.service.K8sConfigService;
+import ru.sberbank.k8sscaler.service.K8sScaleService;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
 public class GroupController {
 
     private final K8sConfigService k8sConfigService;
+    private final K8sScaleService k8sScaleService;
 
     @GetMapping("/")
     public String showGroups(Model model) {
@@ -34,9 +36,8 @@ public class GroupController {
 
     @PostMapping("/group/{groupName}/scale")
     @ResponseBody
-    public SuccessContainerDto scaleGroup(@PathVariable String groupName, @RequestBody List<Cluster> clusters) {
-
-
+    public SuccessContainerDto scaleGroup(@RequestBody List<Cluster> clusters) {
+        k8sScaleService.scaleDeployments(clusters);
         return SuccessContainerDto.success();
     }
 }
