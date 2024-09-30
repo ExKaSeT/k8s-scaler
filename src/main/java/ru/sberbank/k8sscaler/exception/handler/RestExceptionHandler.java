@@ -25,6 +25,6 @@ public class RestExceptionHandler {
     public ResponseEntity<?> handleExceptions(Exception e) {
         log.error(e.getMessage());
         return ResponseEntity.status(INTERNAL_SERVER_ERROR)
-                .body(new SuccessContainerDto(false, null));
+                .body(new SuccessContainerDto(false, "Непредвиденная ошибка"));
     }
 }

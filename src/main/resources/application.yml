@@ -2,13 +2,13 @@ spring.application.name: k8s-scaler
 
 scale:
   tokens:
-    - url: 127.0.0.1:56249
+    - url: http://127.0.0.1:56249
       namespaces:
         default: eyJhbGciOiJSUzI1NiIsImtpZCI6IjduWTl3ZVpwUml4UkNRd2hqb2U2RkwyOUZyUHpiNjdRWW9aVXNaMjhJTTgifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6InNhLXNlY3JldCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJteS1hZG1pbi1zYSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImQwNWMwODJiLTEyOTEtNDJjZC1iODVmLWFhYTI0MzUxOTFhNSIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0Om15LWFkbWluLXNhIn0.jIcQ4ZtLIYOrjk9x6lXlWsBxPzhVx5ePvHk9W_5E_vft3PoZXLhodavkryd1U49kQUOzomMfgCqRX_aw8lQUk8qwISFYE55spC8epCVViqmZscG_PDv5VIF5Mia8nn3QZzZjfNFB4lj5fgxLj40TvNV6qlpXs2MVoROowkzxMpkwPDSEb8WOFyUTHUluYYNPNU7X_5jUCsifOu8waWMhhCtGMWThiXm0DoRxPAFo80Xu_SC0izZgHEm7OmTIxkfuhaDG3z730VwXUTwIs_Ht9lngcCkm3CQaxFsBnqGvyLydGuOPomhSELBv4eJuKy6DW0-mn8-n7Kx2La444wi0Mw
   groups:
     - name: Chebyrek
       clusters:
-        - url: 127.0.0.1:56249
+        - url: http://127.0.0.1:56249
           namespaces:
             default:
               my-deployment: 2

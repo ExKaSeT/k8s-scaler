@@ -31,11 +31,13 @@ public class K8sClientService {
     }
 
     public ApiClient getApiClient(String url, String namespace) {
-        var apiClient = clusterNamespaceApiClient.get(new ClusterNamespace(url, namespace));
+        var clusterNamespace = new ClusterNamespace(url, namespace);
+        var apiClient = clusterNamespaceApiClient.get(clusterNamespace);
         if (isNull(apiClient)) {
             synchronized (clusterNamespaceApiClient) {
-                apiClient = Config.fromUrl(url, false);
-                clusterNamespaceApiClient.put(new ClusterNamespace(url, namespace), apiClient);
+                apiClient = clusterNamespaceApiClient.getOrDefault(clusterNamespace,
+                        Config.fromUrl(url, false));
+                clusterNamespaceApiClient.put(clusterNamespace, apiClient);
                 log.info(String.format("Не найдено токена для url: %s, namespace: %s; Создан клиент без токена", url, namespace));
             }
         }

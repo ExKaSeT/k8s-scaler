@@ -4,13 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.sberbank.k8sscaler.dto.SuccessContainerDto;
-import ru.sberbank.k8sscaler.dto.scale.Cluster;
 import ru.sberbank.k8sscaler.dto.scale.Group;
 import ru.sberbank.k8sscaler.service.K8sConfigService;
-import ru.sberbank.k8sscaler.service.K8sScaleService;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/")
@@ -18,7 +13,6 @@ import java.util.List;
 public class GroupController {
 
     private final K8sConfigService k8sConfigService;
-    private final K8sScaleService k8sScaleService;
 
     @GetMapping("/")
     public String showGroups(Model model) {
@@ -32,12 +26,5 @@ public class GroupController {
         Group group = k8sConfigService.getGroupByName(groupName);
         model.addAttribute("group", group);
         return "group-detail";
-    }
-
-    @PostMapping("/group/{groupName}/scale")
-    @ResponseBody
-    public SuccessContainerDto scaleGroup(@RequestBody List<Cluster> clusters) {
-        k8sScaleService.scaleDeployments(clusters);
-        return SuccessContainerDto.success();
     }
 }
